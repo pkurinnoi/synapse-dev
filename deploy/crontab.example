@@ -1,0 +1,16 @@
+# Agent dev-team — check the board for `todo` issues on a schedule (flock-guarded).
+# Install with:  crontab -e   (then paste a line below)
+#
+# Every minute (the script's flock makes overlapping ticks safe — a long-running
+# issue simply holds the lock until it finishes):
+* * * * * /bin/bash /srv/agent-team/scripts/issue-loop.sh >> /var/log/agent-team/cron.log 2>&1
+
+# Or every 15 minutes:
+# */15 * * * * /bin/bash /srv/agent-team/scripts/issue-loop.sh >> /var/log/agent-team/cron.log 2>&1
+
+# Prerequisites:
+#   mkdir -p /var/log/agent-team
+#   scripts/.env present (chmod 600) with GITLAB_GROUP, GITLAB_TOKEN, TELEGRAM_TOKEN,
+#   TELEGRAM_CHAT_ID — cron has a minimal environment, so the script sources scripts/.env
+#   itself. Ensure `claude`, `node`, `git`, `jq`, `flock`, `curl` are on the cron PATH
+#   (set PATH=... at the top of the crontab if needed).

@@ -1,0 +1,15 @@
+# Secrets — never commit
+scripts/.env
+.claude/settings.local.json
+
+# Python build artifacts
+__pycache__/
+*.py[cod]
+
+# Live + archived monitor logs (keep the dir, not the contents)
+.claude/monitors/archive/*
+!.claude/monitors/archive/.gitkeep
+
+# Logs / runtime
+*.log
+nohup.out

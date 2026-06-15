@@ -1,0 +1,12 @@
+[Unit]
+Description=Run the agent dev-team issue loop periodically
+
+[Timer]
+OnBootSec=2min
+# Wait until the previous run *finishes* before firing again — OnUnitActiveSec would
+# re-fire mid-run and could overlap/kill long issue work (e.g. a Claude agent).
+OnUnitInactiveSec=15min
+AccuracySec=30s
+
+[Install]
+WantedBy=timers.target

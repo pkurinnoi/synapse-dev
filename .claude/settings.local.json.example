@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//var/log/agent-team/**)",
+      "Read(//run/**)",
+      "Read(//tmp/**)",
+      "Bash(git -C /srv/agent-team/docs status)",
+      "Bash(git -C /srv/agent-team/docs branch -a)",
+      "Bash(chmod +x /srv/agent-team/scripts/*.sh)",
+      "Bash(bash -n /srv/agent-team/scripts/*.sh)",
+      "Bash(bash .claude/hooks/session-start-cto.sh)",
+      "Bash(CTO_AUTO_ACCEPT_MR=1 bash .claude/hooks/session-start-cto.sh)",
+      "Bash(crontab -l)"
+    ]
+  }
+}

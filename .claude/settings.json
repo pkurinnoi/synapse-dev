@@ -1,0 +1,91 @@
+{
+  "permissions": {
+    "allow": [
+      "Write",
+      "Edit",
+      "Bash(mkdir *)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(find *)",
+      "Bash(grep *)",
+      "Bash(jq *)",
+      "Bash(wc *)",
+      "Bash(which *)",
+      "Bash(date *)",
+      "Bash(curl *)",
+      "Bash(node *)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(pnpm *)",
+      "Bash(yarn *)",
+      "Bash(tsc *)",
+      "Bash(eslint *)",
+      "Bash(prettier *)",
+      "Bash(vitest *)",
+      "Bash(playwright *)",
+      "Bash(docker compose *)",
+      "Bash(docker build *)",
+      "Bash(docker run *)",
+      "Bash(glab *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git checkout *)",
+      "Bash(git switch *)",
+      "Bash(git log *)",
+      "Bash(git status*)",
+      "Bash(git fetch *)",
+      "Bash(git branch*)",
+      "Bash(git diff*)",
+      "Bash(git reset *)",
+      "Bash(git pull *)",
+      "Bash(git config *)",
+      "Bash(git rm *)",
+      "Bash(git mv *)",
+      "Bash(git push origin feature/*)",
+      "Bash(git push origin fix/*)",
+      "Bash(git push -u origin feature/*)",
+      "Bash(git push -u origin fix/*)",
+      "Bash(git push --set-upstream origin feature/*)",
+      "Bash(git push --set-upstream origin fix/*)",
+      "Bash(git -C * add *)",
+      "Bash(git -C * commit *)",
+      "Bash(git -C * checkout *)",
+      "Bash(git -C * switch *)",
+      "Bash(git -C * branch*)",
+      "Bash(git -C * status*)",
+      "Bash(git -C * log *)",
+      "Bash(git -C * diff*)",
+      "Bash(git -C * show*)",
+      "Bash(git -C * fetch *)",
+      "Bash(git -C * pull *)",
+      "Bash(git -C * config *)",
+      "Bash(git -C * rm *)",
+      "Bash(git -C * mv *)",
+      "Bash(git -C * reset *)",
+      "Bash(git -C * restore *)",
+      "Bash(git -C * stash*)",
+      "Bash(git -C * push origin feature/*)",
+      "Bash(git -C * push origin fix/*)",
+      "Bash(git -C * push -u origin feature/*)",
+      "Bash(git -C * push -u origin fix/*)",
+      "Bash(git -C * push --set-upstream origin feature/*)",
+      "Bash(git -C * push --set-upstream origin fix/*)",
+      "Bash(bash scripts/tg.sh *)",
+      "Bash(bash scripts/monitor-open.sh *)",
+      "Bash(bash scripts/monitor-close.sh *)",
+      "Bash(bash scripts/cto-accept-mr.sh *)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/session-start-cto.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

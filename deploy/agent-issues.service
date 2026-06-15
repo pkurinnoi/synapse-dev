@@ -1,0 +1,19 @@
+[Unit]
+Description=Agent dev-team GitLab issue loop
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# One issue can run a long time (Claude agent + CI). The timer uses OnUnitInactiveSec
+# so the next tick fires only after this unit exits; flock in the script is a backup.
+TimeoutStartSec=infinity
+User=root
+WorkingDirectory=/srv/agent-team
+EnvironmentFile=/srv/agent-team/scripts/.env
+Environment="HOME=/root"
+# Adjust PATH so `claude`, `node`, `git`, `jq`, `flock`, `curl` resolve.
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/root/.local/bin"
+ExecStart=/srv/agent-team/scripts/issue-loop.sh
+StandardOutput=append:/var/log/agent-team/loop.log
+StandardError=append:/var/log/agent-team/loop.log
