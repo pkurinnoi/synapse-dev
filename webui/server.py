@@ -1379,7 +1379,8 @@ def cli_hash_password(argv: list[str]) -> int:
 
 def cli_set_password(argv: list[str]) -> int:
     import getpass
-    user = argv[0] if argv else input("Username [admin]: ").strip() or "admin"
+    arg = argv[0].strip() if argv and argv[0].strip() else ""
+    user = arg or input("Username [admin]: ").strip() or "admin"
     password = getpass.getpass("New web UI password: ")
     if password != getpass.getpass("Repeat: "):
         print("passwords do not match", file=sys.stderr)
@@ -1393,7 +1394,55 @@ def cli_set_password(argv: list[str]) -> int:
     return 0
 
 
+def _port_holder(port: int) -> tuple[str, int]:
+    """Best-effort (' by <name> (pid N)', pid) for a friendly address-in-use message."""
+    if not shutil.which("ss"):
+        return "", 0
+    out = run(["ss", "-ltnp"], timeout=10)["stdout"]
+    for line in out.splitlines():
+        if f":{port} " in line:
+            m = re.search(r'"([^"]+)",pid=(\d+)', line)
+            if m:
+                return f" by {m.group(1)} (pid {m.group(2)})", int(m.group(2))
+    return "", 0
+
+
+def cli_set_port(argv: list[str]) -> int:
+    """Persist WEBUI_PORT (and optionally WEBUI_HOST) to scripts/.env."""
+    if not argv:
+        print(f"usage: server.py set-port <1-65535> [host]", file=sys.stderr)
+        return 2
+    try:
+        port = int(argv[0])
+    except ValueError:
+        print(f"not a port number: {argv[0]}", file=sys.stderr)
+        return 2
+    if not 1 <= port <= 65535:
+        print(f"port out of range (1-65535): {port}", file=sys.stderr)
+        return 2
+
+    updates = {"WEBUI_PORT": str(port)}
+    if len(argv) > 1 and argv[1].strip():
+        updates["WEBUI_HOST"] = argv[1].strip()
+    env_write(updates)
+
+    where = f"{updates.get('WEBUI_HOST', cfg('WEBUI_HOST', '0.0.0.0'))}:{port}"
+    print(f"Saved WEBUI_PORT={port} to {ENV_FILE} — the panel will listen on {where}.")
+    holder, holder_pid = _port_holder(port)
+    if holder_pid and holder_pid in find_pids("webui/server.py"):
+        print(f"  That is this panel, already listening on {port} — "
+              "restart it to pick up the change.")
+    elif holder:
+        print(f"  ⚠  {port} is currently in use{holder} — pick another port, or stop "
+              "that process before starting the panel.", file=sys.stderr)
+    if pathlib.Path("/run/systemd/system").exists():
+        print("  Under systemd: systemctl restart agent-webui")
+    return 0
+
+
 def main(argv: list[str]) -> int:
+    if argv and argv[0] in ("set-port", "port"):
+        return cli_set_port(argv[1:])
     if argv and argv[0] in ("hash-password", "hash"):
         return cli_hash_password(argv[1:])
     if argv and argv[0] in ("set-password", "passwd"):
@@ -1418,9 +1467,23 @@ def main(argv: list[str]) -> int:
     signing_secret()  # generate + persist the cookie key before serving
     RUN_DIR.mkdir(parents=True, exist_ok=True)
 
-    httpd = ThreadingHTTPServer((host, port), Handler)
+    try:
+        httpd = ThreadingHTTPServer((host, port), Handler)
+    except OSError as exc:
+        if exc.errno == 98:   # EADDRINUSE
+            holder = _port_holder(port)[0]
+            print(f"\n  Port {port} is already in use{holder}.\n\n"
+                  "  Run on another port:      ./scripts/webui.sh --port <N>\n"
+                  "  Or make the change stick: ./scripts/webui.sh port <N>\n"
+                  f"  (that writes WEBUI_PORT to {ENV_FILE})\n", file=sys.stderr)
+        elif exc.errno == 13:  # EACCES
+            print(f"\n  Not allowed to bind {host}:{port} — ports below 1024 need "
+                  "root, or another user owns it.\n", file=sys.stderr)
+        else:
+            print(f"\n  Cannot listen on {host}:{port}: {exc}\n", file=sys.stderr)
+        return 2
     httpd.daemon_threads = True
-    user = cfg("WEBUI_USER", "admin")
+    user = cfg("WEBUI_USER", "admin") or "admin"
     print(f"Claude Dev Team control panel → http://{host}:{port}  (user: {user})")
     if host not in ("127.0.0.1", "localhost", "::1") and not \
             (cfg("WEBUI_TLS", "0") or "0").lower() in ("1", "true", "yes", "on"):

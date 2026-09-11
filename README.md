@@ -105,6 +105,19 @@ operation — the `flock` guard makes overlapping ticks safe.
 ./scripts/webui.sh                  # serves http://<host>:9000
 ```
 
+Port 9000 taken? Choose your own — `--port` for one launch, the `port` subcommand to
+make it stick:
+
+```bash
+./scripts/webui.sh --port 9001      # this launch only; scripts/.env is untouched
+./scripts/webui.sh port 9001        # saves WEBUI_PORT=9001 to scripts/.env
+./scripts/webui.sh port             # show the configured port and bind address
+./scripts/webui.sh --background     # detach; --stop to shut it down again
+```
+
+`--host` works the same way. Both forms validate the port and tell you which process
+holds it if it is already in use.
+
 A dependency-free admin UI (Python stdlib + vanilla JS — no npm, no CDN, nothing to
 install) for driving the whole harness from a browser. It sits behind the
 login/password stored in `scripts/.env`; sessions are signed HTTP-only cookies, every
@@ -126,7 +139,8 @@ Tune it with the `WEBUI_*` keys in `scripts/.env` (`WEBUI_HOST`, `WEBUI_PORT`,
 
 > **The panel is root over the harness** — it rewrites tokens, agent prompts and
 > permissions. Keep it on `127.0.0.1` behind an SSH tunnel or a TLS reverse proxy
-> (`WEBUI_TLS=1`) rather than open to the internet; see
+> (`WEBUI_TLS=1`) rather than open to the internet. A ready-made nginx vhost is in
+> [`deploy/nginx/agent-webui.conf`](./deploy/nginx/agent-webui.conf); see
 > [`deploy/README.md`](./deploy/README.md#exposing-it-safely).
 
 ### Safety model

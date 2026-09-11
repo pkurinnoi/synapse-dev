@@ -10,7 +10,10 @@ Type=oneshot
 TimeoutStartSec=infinity
 User=root
 WorkingDirectory=/srv/agent-team
-EnvironmentFile=/srv/agent-team/scripts/.env
+# NOTE: no EnvironmentFile= here on purpose. systemd does NOT strip a trailing
+# `# comment` from a value, and scripts/.env ships comments on the value lines,
+# so it would hand the process a corrupted GITLAB_TOKEN. Every script (and the
+# web panel) loads scripts/.env itself, with a parser that handles them.
 Environment="HOME=/root"
 # Adjust PATH so `claude`, `node`, `git`, `jq`, `flock`, `curl` resolve.
 Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/root/.local/bin"

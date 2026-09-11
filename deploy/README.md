@@ -53,17 +53,27 @@ prompts, and start processes. Choose one:
 
 - **SSH tunnel (safest).** Set `WEBUI_HOST=127.0.0.1`, then from your laptop:
   `ssh -N -L 9000:127.0.0.1:9000 you@your-host` and open <http://localhost:9000>.
-- **TLS reverse proxy.** Keep `WEBUI_HOST=127.0.0.1`, terminate HTTPS in
-  nginx/Caddy, and set `WEBUI_TLS=1` so the session cookie is marked `Secure`.
-  The panel also honours `X-Forwarded-Proto: https`.
+- **TLS reverse proxy.** Keep `WEBUI_HOST=127.0.0.1`, terminate HTTPS in nginx, and
+  set `WEBUI_TLS=1` so the session cookie is marked `Secure` (the panel also honours
+  `X-Forwarded-Proto: https`). A ready-made vhost ships in
+  [`deploy/nginx/agent-webui.conf`](./nginx/agent-webui.conf) — it serves the panel on
+  its own TLS port, reusing a cert an existing vhost already holds for that domain:
 
-  ```nginx
-  location / {
-      proxy_pass http://127.0.0.1:9000;
-      proxy_set_header Host $host;
-      proxy_set_header X-Forwarded-Proto $scheme;
-  }
+  ```bash
+  # edit the server_name, the ssl_certificate paths and the port to taste
+  sudo cp deploy/nginx/agent-webui.conf /etc/nginx/sites-available/agent-webui.conf
+  sudo ln -sf /etc/nginx/sites-available/agent-webui.conf \
+              /etc/nginx/sites-enabled/agent-webui.conf
+  sudo nginx -t && sudo systemctl reload nginx
+  sudo ufw allow 9090/tcp
+
+  ./scripts/webui.sh port 9001         # the panel stays on localhost …
+  sed -i 's/^WEBUI_TLS=0/WEBUI_TLS=1/' scripts/.env
+  sudo systemctl restart agent-webui   # … nginx owns the public port
   ```
+
+  Two ports are in play and they must differ: nginx listens on the public TLS port,
+  the panel on the private one it proxies to.
 
 - **Plain `0.0.0.0:9000`** is the default and works out of the box, but the login
   then travels in cleartext. Only do that on a trusted/private network.
