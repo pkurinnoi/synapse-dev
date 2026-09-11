@@ -109,4 +109,9 @@ echo "  Windows: cto, issuebot (more created per-task via monitor-open.sh)"
 echo "  Navigation: Ctrl-b 0 → cto; Ctrl-b w → window list"
 echo ""
 
-[ -z "${TMUX:-}" ] && tmux attach -t "$SESSION"
+# Attach only when we actually have a terminal — the web UI and cron call this too.
+if [ -z "${TMUX:-}" ] && [ -t 1 ]; then
+    tmux attach -t "$SESSION"
+else
+    echo "Not attaching (no TTY). Attach with: tmux attach -t $SESSION"
+fi

@@ -1,0 +1,28 @@
+# Claude Dev Team — web control panel (port 9000 by default).
+#
+#   sudo cp deploy/agent-webui.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now agent-webui
+#
+# Adjust User/WorkingDirectory to your install. The panel needs to run as the
+# same user as the agent team so it can read/write scripts/.env, the agent
+# definitions, and the loop's control files.
+
+[Unit]
+Description=Claude Dev Team web control panel
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/srv/agent-team
+EnvironmentFile=-/srv/agent-team/scripts/.env
+ExecStart=/usr/bin/python3 /srv/agent-team/webui/server.py
+Restart=on-failure
+RestartSec=5
+# The panel edits agent files and starts the bot/loop — keep it on localhost or
+# behind a TLS reverse proxy (set WEBUI_TLS=1 there).
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target

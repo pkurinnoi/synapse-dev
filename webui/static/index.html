@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Claude Dev Team — Control Panel</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🤖</text></svg>">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<!-- ── login gate ─────────────────────────────────────────────────────────── -->
+<div id="login" class="login-wrap" hidden>
+  <form class="login-card" id="login-form" autocomplete="on">
+    <div class="login-mark">🤖</div>
+    <h1>Claude Dev Team</h1>
+    <p class="muted">Control panel — sign in to manage the harness.</p>
+    <label>Username<input name="user" id="login-user" autocomplete="username" required></label>
+    <label>Password<input name="password" id="login-pass" type="password" autocomplete="current-password" required></label>
+    <button class="btn primary" type="submit" id="login-btn">Sign in</button>
+    <div class="login-error" id="login-error" hidden></div>
+    <p class="login-foot muted">Credentials come from <code>scripts/.env</code>.</p>
+  </form>
+</div>
+
+<!-- ── app shell ──────────────────────────────────────────────────────────── -->
+<div id="app" class="shell" hidden>
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-mark">🤖</span>
+      <div><strong>Claude Dev Team</strong><small id="brand-sub">control panel</small></div>
+    </div>
+    <nav id="nav">
+      <button data-view="overview" class="active"><span>◉</span>Overview</button>
+      <button data-view="settings"><span>🔑</span>Tokens &amp; settings</button>
+      <button data-view="agents"><span>👥</span>Agent roles</button>
+      <button data-view="telegram"><span>✈</span>Telegram bot</button>
+      <button data-view="board"><span>▤</span>Board &amp; MRs</button>
+      <button data-view="loop"><span>⟳</span>Issue loop</button>
+      <button data-view="config"><span>⚙</span>Config files</button>
+      <button data-view="logs"><span>▤</span>Logs &amp; monitors</button>
+    </nav>
+    <div class="side-foot">
+      <div class="pill" id="side-status">…</div>
+      <button class="btn ghost small" id="logout">Sign out</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <h2 id="view-title">Overview</h2>
+      <div class="topbar-actions">
+        <span class="muted small" id="refresh-note"></span>
+        <button class="btn ghost small" id="refresh">Refresh</button>
+      </div>
+    </header>
+    <div id="view" class="view"></div>
+  </main>
+</div>
+
+<div id="toasts" class="toasts"></div>
+
+<div id="modal" class="modal" hidden>
+  <div class="modal-card">
+    <h3 id="modal-title">Confirm</h3>
+    <p id="modal-body" class="muted"></p>
+    <div class="row end gap">
+      <button class="btn ghost" id="modal-cancel">Cancel</button>
+      <button class="btn danger" id="modal-ok">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>

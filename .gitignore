@@ -13,3 +13,7 @@ __pycache__/
 # Logs / runtime
 *.log
 nohup.out
+
+# Web UI runtime
+webui/__pycache__/
+.claude/agents/.backups/
